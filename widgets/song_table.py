@@ -1,33 +1,31 @@
 import tkinter
+from tkinter import ttk
 from constants import style
 
 class SongsTable(tkinter.Frame):
-    def __init__(self, parent, route, songs, play):
+    def __init__(self, parent, control):
         super().__init__(parent)
+        self.table_control = control
 
-        self.route_songs = route
-        self.play_song = play
-        self.songs_name = songs
         self.create_table()
-
-    def selected_song(self, event):
-        widget = event.widget
-        selected = widget.curselection()
-        song = self.songs_name[selected[0]]
-        route = f'{self.route_songs}/{song}'
-        try:
-            self.play_song(route)
-        except:
-            print(self.route_songs)
+        self.table_control.create_reference_table(self.song_table)
 
     def create_table(self):
         self.song_table = tkinter.Listbox(self, **style.LISTBOX)
-        for key, value in self.songs_name.items():
+        songs = self.table_control.show_songs()
+        for key, value in songs.items():
             self.song_table.insert(key, value)
 
-        self.song_table.bind("<ButtonRelease-1>", self.selected_song)
+        #Barra de desplazamiento vertical
+        y = ttk.Scrollbar(self, orient='vertical', command=self.song_table)
+        y.grid(row=0, column=1, sticky=tkinter.NS)
+        self.song_table.configure(yscrollcommand=y.set)
+        y.config(command=self.song_table.yview)
+
+        self.song_table.bind("<ButtonRelease-1>", self.table_control.selected_song)
         self.song_table.grid(column=0, row=0, sticky=tkinter.NSEW)
 
-        self.grid_columnconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
+
     
