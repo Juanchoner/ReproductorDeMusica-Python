@@ -33,5 +33,3 @@ class MusciPlayer(tkinter.Frame):
         content.grid_columnconfigure(0, weight=1)
         content.grid_rowconfigure(0, weight=1)
         content.grid_rowconfigure(1, weight=0)
-
-

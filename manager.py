@@ -17,6 +17,5 @@ class Manager(tkinter.Tk):
         container.grid_columnconfigure(0, weight=1)
         container.grid_rowconfigure(0, weight=1)
 
-        
         frame = MusciPlayer(container)
         frame.grid(column=0, row=0, sticky=tkinter.NSEW)

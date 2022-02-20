@@ -22,10 +22,8 @@ class SongsTable(tkinter.Frame):
         self.song_table.configure(yscrollcommand=y.set)
         y.config(command=self.song_table.yview)
 
-        self.song_table.bind("<ButtonRelease-1>", self.table_control.selected_song)
+        self.song_table.bind("<<ListboxSelect>>", self.table_control.selected_song)
         self.song_table.grid(column=0, row=0, sticky=tkinter.NSEW)
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-
-    
