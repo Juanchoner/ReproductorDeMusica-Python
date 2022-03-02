@@ -5,6 +5,8 @@ import tkinter
 from tkinter import filedialog
 from pygame import mixer
 from pathlib import Path
+import os
+import json
 
 class MusicControl:
     def __init__(self):
@@ -13,6 +15,7 @@ class MusicControl:
         self.song_names = dict()
         self.pause = True
         self.name = tkinter.StringVar()
+        self.create_settings()
 
     def show_songs(self, directory = None):
         '''
@@ -36,6 +39,36 @@ class MusicControl:
         '''
         self.reference_table = table
 
+    def create_settings(self):
+        '''
+        Se crea el archivo de configuración para guardar la ruta
+        de la ultima carpeta seleccionada.
+        '''
+        ruta = Path(".").parent.resolve()
+        check = f'{ruta}\config.json'
+        if not os.path.exists(check):
+            print('Creando configuración...')
+            settings = {"ruta" : ""}
+            with open("config.json", "w") as file_settings:
+                json.dump(settings, file_settings)
+        else:
+            with open("config.json", "r") as route:
+                load_config = json.load(route)
+            print('Se a cargado la siguinete ruta {}'.format(load_config["ruta"]))
+            self.show_songs(load_config["ruta"])
+            self.save_directory = load_config["ruta"]
+            
+
+    def save_last_route(self, directory):
+        '''
+        Guarda la ultima ruta que se utilizo
+        '''
+        with open("config.json", "r") as take:
+            load_config = json.load(take)
+        with open("config.json", "w") as update:
+            load_config["ruta"] = str(directory)
+            json.dump(load_config, update)
+
     def select_route(self):
         '''
         Cuando se seleciona una nueva ruta borra los viejas referencias y 
@@ -50,6 +83,7 @@ class MusicControl:
             self.song_names = self.show_songs(directory)
             for key, value in self.song_names.items():
                 self.reference_table.insert(key, value)
+            self.save_last_route(directory)
         else:
             return
         
@@ -57,6 +91,7 @@ class MusicControl:
         song = self.reference_table.get("anchor")
         self.name.set(song)
         try:
+            mixer.music.pause()
             mixer.music.load(f'{self.save_directory}/{song}')
             mixer.music.play()
         except:
@@ -76,9 +111,12 @@ class MusicControl:
         anterior
         '''
         back_song = self.reference_table.curselection()
+        if back_song[0] == 0:
+            return
         back_song = back_song[0] - 1
         self.name.set(self.song_names[back_song])
         try:
+            mixer.music.pause()
             mixer.music.load(f'{self.save_directory}/{self.song_names[back_song]}')
             mixer.music.play()
         except:
@@ -95,9 +133,12 @@ class MusicControl:
         '''
         next_song = self.reference_table.curselection()
         next_song = next_song[0] + 1
+        if next_song == len(self.song_names):
+            return
         self.name.set(self.song_names[next_song])
 
         try:
+            mixer.music.pause()
             mixer.music.load(f'{self.save_directory}/{self.song_names[next_song]}')
             mixer.music.play()
         except:
