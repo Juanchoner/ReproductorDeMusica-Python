@@ -21,6 +21,11 @@ class MusicControl:
         '''
         Mustra las canciones que se encuentran dentro de la ruta 
         selecionada.
+
+        Parametros:
+        directory: Direccion de la carpeta de la cual se mostraran las 
+        canciones
+
         Retorna un diccionario el cual contiene las canciones
         '''
         try:
@@ -36,12 +41,15 @@ class MusicControl:
     def create_reference_table(self, table):
         '''
         Se crea una referencia de la tabla deonde se muestran las canciones
+
+        Parametros:
+        Tabla de la que de la cual se desea hacer referencia 
         '''
         self.reference_table = table
 
     def create_settings(self):
         '''
-        Se crea el archivo de configuración para guardar la ruta
+        Crea el archivo de configuración para guardar la ruta
         de la ultima carpeta seleccionada.
         '''
         ruta = Path(".").parent.resolve()
@@ -61,7 +69,10 @@ class MusicControl:
 
     def save_last_route(self, directory):
         '''
-        Guarda la ultima ruta que se utilizo
+        Guarda la ultima ruta que se utilizo en un json
+
+        Parametros:
+        directory: La dirección de la ultima carpeta que de la cual se escucho música
         '''
         with open("config.json", "r") as take:
             load_config = json.load(take)
@@ -87,15 +98,29 @@ class MusicControl:
         else:
             return
         
-    def selected_song(self, event):
-        song = self.reference_table.get("anchor")
-        self.name.set(song)
+    def play_music(self, song_route):
+        '''
+        Intenta reproducir la canción que ha sido selecionada en la tabla, o con 
+        los botones de back o back
+
+        Parmetros: 
+        song_route: La ruta de la canción selecionada
+        '''
         try:
             mixer.music.pause()
-            mixer.music.load(f'{self.save_directory}/{song}')
+            mixer.music.load(song_route)
             mixer.music.play()
         except:
             print('Algo rato esta pasando..')
+
+    def selected_song(self, event):
+        '''
+        Una vez selecionada la canción mediante la tabla esta comezará su 
+        reproducción
+        '''
+        song = self.reference_table.get("anchor")
+        self.name.set(song)
+        self.play_music(f'{self.save_directory}/{song}')
 
     def pause_play(self):
         if self.pause == True:
@@ -115,12 +140,7 @@ class MusicControl:
             return
         back_song = back_song[0] - 1
         self.name.set(self.song_names[back_song])
-        try:
-            mixer.music.pause()
-            mixer.music.load(f'{self.save_directory}/{self.song_names[back_song]}')
-            mixer.music.play()
-        except:
-            print('Algo rato esta pasando..')
+        self.play_music(f'{self.save_directory}/{self.song_names[back_song]}')
 
         self.reference_table.select_clear(0, 'end')
         self.reference_table.activate(back_song)
@@ -136,13 +156,7 @@ class MusicControl:
         if next_song == len(self.song_names):
             return
         self.name.set(self.song_names[next_song])
-
-        try:
-            mixer.music.pause()
-            mixer.music.load(f'{self.save_directory}/{self.song_names[next_song]}')
-            mixer.music.play()
-        except:
-            print('Algo rato esta pasando..')
+        self.play_music(f'{self.save_directory}/{self.song_names[next_song]}')
 
         self.reference_table.select_clear(0, 'end')
         self.reference_table.activate(next_song)
